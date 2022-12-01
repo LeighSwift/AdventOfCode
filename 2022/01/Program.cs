@@ -1,4 +1,4 @@
-﻿const string InputFile = @"/Users/leighswift/p4/depot/usr/Leigh.Swift/AdventOfCode/2022/01/input.txt";
+﻿const string InputFile = @"input.txt";
 
 string[] inputLines = File.ReadAllLines(InputFile);
 
