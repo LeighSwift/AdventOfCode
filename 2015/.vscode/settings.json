@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.*product": "json",
+        "*.*layout": "json",
+        "*.*sdmeta": "json",
+        "*.manifest": "json",
+        "iosfwd": "cpp",
+        "ostream": "cpp"
+    }
+}
