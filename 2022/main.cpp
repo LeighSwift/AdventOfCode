@@ -53,15 +53,20 @@ void day01()
     for (size_t i = 0; i < inputData.size(); i++)
     {
         std::string &line = inputData[i];
-        if (line.length() == 0 || (i + 1) == inputData.size())
+        if (line.length() == 0)
         {
             topThree[0] = std::max(topThree[0], elfCalories);
             std::sort(topThree.begin(), topThree.end());
             elfCalories = 0;
             continue;
         }
-        elfCalories += std::atoi(line.c_str());
+        else
+        {
+            elfCalories += std::atoi(line.c_str());
+        }
     }
+    topThree[0] = std::max(topThree[0], elfCalories);
+    std::sort(topThree.begin(), topThree.end());
 
     std::cout << "AoC: Day 01: Highest:          " << topThree[2] << std::endl;
     std::cout << "AoC: Day 01: Sum of top three: " << std::accumulate(topThree.begin(), topThree.end(), 0) << std::endl;
