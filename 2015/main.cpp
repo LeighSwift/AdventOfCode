@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <map>
 
 // https://adventofcode.com/2015
 
@@ -101,8 +102,86 @@ void day02()
     std::cout << std::endl;
 }
 
+void day03()
+{
+    struct HousePos
+    {
+    public:
+        int x = 0;
+        int y = 0;
+
+        void Move(char c)
+        {
+            switch (c)
+            {
+            case '^':
+                ++y;
+                break;
+            case '>':
+                ++x;
+                break;
+            case 'v':
+                --y;
+                break;
+            case '<':
+                --x;
+                break;
+            }
+        }
+
+        bool operator<(const HousePos &rhs) const
+        {
+            if (x < rhs.x)
+            {
+                return true;
+            }
+            else if (x == rhs.x && y < rhs.y)
+            {
+                return true;
+            }
+            return false;
+        }
+    };
+    auto houseVisitor = [&](std::map<HousePos, int> &visits, HousePos pos)
+    {
+        auto it = visits.find(pos);
+        if (it != visits.end())
+        {
+            ++it->second;
+        }
+        else
+        {
+            visits[pos] = 1;
+        }
+    };
+    std::map<HousePos, int> houseVisitsP1;
+    std::map<HousePos, int> houseVisitsP2;
+    HousePos positions[3] = {0};
+    houseVisitor(houseVisitsP1, positions[2]);
+    houseVisitor(houseVisitsP2, positions[0]);
+    houseVisitor(houseVisitsP2, positions[1]);
+    std::string inputData = AoC::FileSystem::ReadAllText("input03.txt");
+    for (size_t i = 0; i < inputData.length(); i++)
+    {
+        // Part 1
+        {
+            positions[2].Move(inputData[i]);
+            houseVisitor(houseVisitsP1, positions[2]);
+        }
+        // Part 2
+        {
+            positions[i % 2].Move(inputData[i]);
+            houseVisitor(houseVisitsP2, positions[i % 2]);
+        }
+    }
+    std::cout << "AoC: Day 03: Num houses visited P1: " << houseVisitsP1.size() << std::endl;
+    std::cout << "AoC: Day 03: Num houses visited P2: " << houseVisitsP2.size() << std::endl;
+    std::cout << std::endl;
+}
+
 int main()
 {
     day01();
     day02();
+    day03();
 }
