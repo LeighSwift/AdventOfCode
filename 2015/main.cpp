@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <map>
 
+#include "md5.h"
+
 // https://adventofcode.com/2015
 
 namespace AoC
@@ -97,7 +99,7 @@ void day02()
         totalRibbonFeet += sides[1];
         totalRibbonFeet += sides[1];
     }
-    std::cout << "AoC: Day 02: Total wrapping sqft: " << totalWrappingSqFt << std::endl;
+    std::cout << "AoC: Day 02: Total wrapping square feet: " << totalWrappingSqFt << std::endl;
     std::cout << "AoC: Day 02: Total ribbon feet:   " << totalRibbonFeet << std::endl;
     std::cout << std::endl;
 }
@@ -179,9 +181,37 @@ void day03()
     std::cout << std::endl;
 }
 
+void day04()
+{
+    const char *fiveZero = "00000";
+    const char *sixZero = "000000";
+    char data[20];
+    int resultP1 = 0;
+    int resultP2 = 0;
+    for (int i = 0; i < std::numeric_limits<int>::max(); i++)
+    {
+        sprintf(data, "bgvyzdsv%d", i);
+        std::string hash = AoC::MD5::HashBytes(reinterpret_cast<unsigned char *>(data), strlen(data));
+        if (resultP1 == 0 && hash.find(fiveZero) == 0)
+        {
+            resultP1 = i;
+        }
+        if (resultP2 == 0 && hash.find(sixZero) == 0)
+        {
+            resultP2 = i;
+            break;
+        }
+    }
+
+    std::cout << "AoC: Day 04: Hash with five zeros: " << resultP1 << std::endl;
+    std::cout << "AoC: Day 04: Hash with six zeros:  " << resultP2 << std::endl;
+    std::cout << std::endl;
+}
+
 int main()
 {
     day01();
     day02();
     day03();
+    day04();
 }
