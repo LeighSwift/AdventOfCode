@@ -230,10 +230,83 @@ void day04()
     std::cout << std::endl;
 }
 
+void day05()
+{
+    std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input05.txt");
+    // Every line is the correct number of characters to print the crates even if they end with whitespace.
+    std::vector<std::string> stacksP1;
+    std::vector<std::string> stacksP2;
+    bool bParsedStacks = false;
+    for (size_t i = 0; i < inputData.size(); i++)
+    {
+        std::string &line = inputData[i];
+        if (!bParsedStacks)
+        {
+            const int numStacks = (inputData[i].length() + 1) / 4;
+            while (stacksP1.size() < numStacks)
+            {
+                stacksP1.push_back("");
+            }
+            for (size_t stackIdx = 0; stackIdx < numStacks; stackIdx++)
+            {
+                char crate = line[(stackIdx * 4) + 1];
+                // the numbers are the end f the list
+                if (crate == '1')
+                {
+                    ++i;
+                    bParsedStacks = true;
+                    stacksP2 = stacksP1;
+                    break;
+                }
+                // no crate
+                else if (crate != ' ')
+                {
+                    stacksP1[stackIdx].insert(stacksP1[stackIdx].begin(), crate);
+                }
+            }
+        }
+        else
+        {
+            std::istringstream lineStream(line);
+            int num, from, to;
+            lineStream.ignore(5);
+            lineStream >> num;
+            lineStream.ignore(6);
+            lineStream >> from;
+            lineStream.ignore(4);
+            lineStream >> to;
+            --from;
+            --to;
+            // Part 1
+            for (size_t j = 0; j < num; j++)
+            {
+                stacksP1[to].push_back(stacksP1[from].back());
+                stacksP1[from].pop_back();
+            }
+            // Part 2
+            stacksP2[to] += &stacksP2[from][stacksP2[from].length() - num];
+            stacksP2[from] = stacksP2[from].substr(0, stacksP2[from].length() - num);
+        }
+    }
+
+    std::string topsP1;
+    std::string topsP2;
+    for (size_t i = 0; i < stacksP1.size(); i++)
+    {
+        topsP1 += stacksP1[i].back();
+        topsP2 += stacksP2[i].back();
+    }
+
+    std::cout << "AoC: Day 05: : " << topsP1 << std::endl;
+    std::cout << "AoC: Day 05: : " << topsP2 << std::endl;
+    std::cout << std::endl;
+}
+
 int main()
 {
     day01();
     day02();
     day03();
     day04();
+    day05();
 }
