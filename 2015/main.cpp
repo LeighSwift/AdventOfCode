@@ -208,10 +208,96 @@ void day04()
     std::cout << std::endl;
 }
 
+void day05()
+{
+    auto countVowel = [&](char c)
+    {
+        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' ? 1 : 0;
+    };
+
+    auto isBad = [&](const char *c)
+    {
+        switch (*c)
+        {
+        case 'a':
+        case 'c':
+        case 'p':
+        case 'x':
+            return *c == (*(c + 1)) - 1;
+        }
+        return false;
+    };
+
+    std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input05.txt");
+    int niceStringCountP1 = 0;
+    int niceStringCountP2 = 0;
+    int doubleLetterTable[26 * 26];
+    for (size_t i = 0; i < inputData.size(); i++)
+    {
+        const std::string &line = inputData[i];
+        // Part 1
+        {
+            int vowelCount = 0;
+            bool bRepeatLetter = false;
+            bool bHasBadSubstring = false;
+            for (size_t j = 0; j < line.length(); j++)
+            {
+                const char c = line[j];
+                vowelCount += countVowel(c);
+                bRepeatLetter = bRepeatLetter || (j > 0 && line[j] == line[j - 1]);
+                bHasBadSubstring = bHasBadSubstring || (j > 0 && isBad(&line[j - 1]));
+                if (bHasBadSubstring)
+                {
+                    break;
+                }
+            }
+            if (!bHasBadSubstring && vowelCount >= 3 && bRepeatLetter)
+            {
+                ++niceStringCountP1;
+            }
+        }
+        // Part 2
+        {
+            std::memset(doubleLetterTable, -1, 26 * 26 * 4);
+            bool bRepeatLetter = false;
+            bool bGoodPair = false;
+            std::string pair;
+            std::string repeat;
+            for (size_t j = 0; j < line.length(); j++)
+            {
+                bRepeatLetter = bRepeatLetter || (j > 1 && line[j] == line[j - 2]);
+                if (j > 0)
+                {
+                    const char c1 = line[j];
+                    const char c0 = line[j - 1];
+                    int tableIdx = (c0 - 'a') + (26 * (c1 - 'a'));
+                    if (doubleLetterTable[tableIdx] >= 0)
+                    {
+                        bGoodPair = bGoodPair || (((j-1) - doubleLetterTable[tableIdx]) >= 2);
+                    }
+                    else
+                    {
+                        doubleLetterTable[tableIdx] = j - 1;
+                    }
+                }
+            }
+            if (bRepeatLetter && bGoodPair)
+            {
+                ++niceStringCountP2;
+            }
+        }
+    }
+
+    std::cout << "AoC: Day 05: Num nice string P1: " << niceStringCountP1 << std::endl;
+    std::cout << "AoC: Day 05: Num nice string P2: " << niceStringCountP2 << std::endl;
+    std::cout << std::endl;
+}
+
 int main()
 {
     day01();
     day02();
     day03();
     day04();
+    day05();
 }
