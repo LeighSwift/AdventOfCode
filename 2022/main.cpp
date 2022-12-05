@@ -233,7 +233,6 @@ void day04()
 void day05()
 {
     std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input05.txt");
-    // Every line is the correct number of characters to print the crates even if they end with whitespace.
     std::vector<std::string> stacksP1;
     std::vector<std::string> stacksP2;
     bool bParsedStacks = false;
