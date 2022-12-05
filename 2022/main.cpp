@@ -249,7 +249,7 @@ void day05()
             for (size_t stackIdx = 0; stackIdx < numStacks; stackIdx++)
             {
                 char crate = line[(stackIdx * 4) + 1];
-                // the numbers are the end f the list
+                // The numbers are the end 0f the list
                 if (crate == '1')
                 {
                     ++i;
@@ -257,7 +257,6 @@ void day05()
                     stacksP2 = stacksP1;
                     break;
                 }
-                // no crate
                 else if (crate != ' ')
                 {
                     stacksP1[stackIdx].insert(stacksP1[stackIdx].begin(), crate);
