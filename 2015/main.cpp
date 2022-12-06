@@ -190,7 +190,7 @@ void day04()
     int resultP2 = 0;
     for (int i = 0; i < std::numeric_limits<int>::max(); i++)
     {
-        sprintf(data, "bgvyzdsv%d", i);
+        snprintf(data, 20, "bgvyzdsv%d", i);
         std::string hash = AoC::MD5::HashBytes(reinterpret_cast<unsigned char *>(data), strlen(data));
         if (resultP1 == 0 && hash.find(fiveZero) == 0)
         {
@@ -273,7 +273,7 @@ void day05()
                     int tableIdx = (c0 - 'a') + (26 * (c1 - 'a'));
                     if (doubleLetterTable[tableIdx] >= 0)
                     {
-                        bGoodPair = bGoodPair || (((j-1) - doubleLetterTable[tableIdx]) >= 2);
+                        bGoodPair = bGoodPair || (((j - 1) - doubleLetterTable[tableIdx]) >= 2);
                     }
                     else
                     {
@@ -293,6 +293,75 @@ void day05()
     std::cout << std::endl;
 }
 
+void day06()
+{
+    std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input06.txt");
+    bool *xmasLights = new bool[1000 * 1000];
+    std::memset(xmasLights, 0, 1000 * 1000 * sizeof(bool));
+    const char *turnOn = "turn on";
+    const char *turnOff = "turn off";
+    const char *toggle = "toggle";
+    int numLitLights = 0;
+    auto turnOnFn = [&](int x, int y)
+    {
+        bool &light = xmasLights[x + (y * 1000)];
+        numLitLights = light ? numLitLights : numLitLights + 1;
+        light = true;
+    };
+    auto turnOffFn = [&](int x, int y)
+    {
+        bool &light = xmasLights[x + (y * 1000)];
+        numLitLights = light ? numLitLights - 1 : numLitLights;
+        light = false;
+    };
+    auto toggleFn = [&](int x, int y)
+    {
+        bool &light = xmasLights[x + (y * 1000)];
+        numLitLights = light ? numLitLights - 1 : numLitLights + 1;
+        light = !light;
+    };
+    for (size_t i = 0; i < inputData.size(); i++)
+    {
+        const std::string &line = inputData[i];
+        std::istringstream lineStream(line);
+        std::function<void(int, int)> fn;
+        if (line.rfind(turnOn, 0) == 0)
+        {
+            lineStream.ignore(strlen(turnOn));
+            fn = turnOnFn;
+        }
+        else if (line.rfind(turnOff, 0) == 0)
+        {
+            lineStream.ignore(strlen(turnOff));
+            fn = turnOffFn;
+        }
+        else if (line.rfind(toggle, 0) == 0)
+        {
+            lineStream.ignore(strlen(toggle));
+            fn = toggleFn;
+        }
+        int startX, startY, endX, endY = 0;
+        lineStream >> startX;
+        lineStream.ignore(1);
+        lineStream >> startY;
+        lineStream.ignore(9);
+        lineStream >> endX;
+        lineStream.ignore(1);
+        lineStream >> endY;
+        for (int x = startX; x <= endX; x++)
+        {
+            for (int y = startY; y <= endY; y++)
+            {
+                fn(x, y);
+            }
+        }
+    }
+    delete[] xmasLights;
+    std::cout << "AoC: Day 06: Num lights on: " << numLitLights << std::endl;
+    std::cout << "AoC: Day 06: Num nice string P1: " << numLitLights << std::endl;
+    std::cout << std::endl;
+}
+
 int main()
 {
     day01();
@@ -300,4 +369,5 @@ int main()
     day03();
     day04();
     day05();
+    day06();
 }
