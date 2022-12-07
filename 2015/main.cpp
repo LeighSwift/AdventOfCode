@@ -297,28 +297,45 @@ void day06()
 {
     std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input06.txt");
     bool *xmasLights = new bool[1000 * 1000];
+    int *xmasLightsP2 = new int[1000 * 1000];
     std::memset(xmasLights, 0, 1000 * 1000 * sizeof(bool));
+    std::memset(xmasLightsP2, 0, 1000 * 1000 * sizeof(int));
     const char *turnOn = "turn on";
     const char *turnOff = "turn off";
     const char *toggle = "toggle";
-    int numLitLights = 0;
+    int numLitLightsP1 = 0;
+    int totalBrightnessP2 = 0;
     auto turnOnFn = [&](int x, int y)
     {
         bool &light = xmasLights[x + (y * 1000)];
-        numLitLights = light ? numLitLights : numLitLights + 1;
+        numLitLightsP1 = light ? numLitLightsP1 : numLitLightsP1 + 1;
         light = true;
+        int &lightP2 = xmasLightsP2[x + (y * 1000)];
+        ++lightP2;
+        ++totalBrightnessP2;
     };
     auto turnOffFn = [&](int x, int y)
     {
         bool &light = xmasLights[x + (y * 1000)];
-        numLitLights = light ? numLitLights - 1 : numLitLights;
+        numLitLightsP1 = light ? numLitLightsP1 - 1 : numLitLightsP1;
         light = false;
+        int &lightP2 = xmasLightsP2[x + (y * 1000)];
+        if (lightP2 > 0)
+        {
+            --lightP2;
+            --totalBrightnessP2;
+        }
     };
     auto toggleFn = [&](int x, int y)
     {
         bool &light = xmasLights[x + (y * 1000)];
-        numLitLights = light ? numLitLights - 1 : numLitLights + 1;
+        numLitLightsP1 = light ? numLitLightsP1 - 1 : numLitLightsP1 + 1;
         light = !light;
+        int &lightP2 = xmasLightsP2[x + (y * 1000)];
+        ++lightP2;
+        ++lightP2;
+        ++totalBrightnessP2;
+        ++totalBrightnessP2;
     };
     for (size_t i = 0; i < inputData.size(); i++)
     {
@@ -357,8 +374,8 @@ void day06()
         }
     }
     delete[] xmasLights;
-    std::cout << "AoC: Day 06: Num lights on: " << numLitLights << std::endl;
-    std::cout << "AoC: Day 06: Num nice string P1: " << numLitLights << std::endl;
+    std::cout << "AoC: Day 06: Num lights on: " << numLitLightsP1 << std::endl;
+    std::cout << "AoC: Day 06: Total brightness: " << totalBrightnessP2 << std::endl;
     std::cout << std::endl;
 }
 
