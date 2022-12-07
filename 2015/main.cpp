@@ -379,6 +379,223 @@ void day06()
     std::cout << std::endl;
 }
 
+void day07()
+{
+    static std::map<std::string, std::unique_ptr<class GateBase>> wires;
+
+    class GateBase
+    {
+    public:
+        virtual ~GateBase() = default;
+        virtual uint16_t CalcResult() = 0;
+
+        uint16_t GetResult()
+        {
+            if (!m_Result.has_value())
+            {
+                m_Result = CalcResult();
+            }
+            return m_Result.value();
+        }
+
+        uint16_t GetSignal(const std::string& wireVal)
+        {
+            auto wire = wires.find(wireVal);
+            if (wire != wires.end())
+            {
+                return wire->second->GetResult();
+            }
+            return atoi(wireVal.c_str());
+        }
+
+        std::optional<uint16_t> m_Result;
+    };
+
+    class ConstValue : public GateBase
+    {
+    public:
+        ConstValue(std::string val)
+            : m_Val(std::move(val))
+        {
+        }
+        virtual uint16_t CalcResult() override
+        {
+            return GetSignal(m_Val);
+        }
+
+    private:
+        const std::string m_Val;
+    };
+
+    class AndGate : public GateBase
+    {
+    public:
+        AndGate(std::string lhs, std::string rhs)
+            : m_Lhs(std::move(lhs)), m_Rhs(std::move(rhs))
+        {
+        }
+        virtual uint16_t CalcResult() override
+        {
+            return GetSignal(m_Lhs) & GetSignal(m_Rhs);
+        }
+
+    private:
+        const std::string m_Lhs;
+        const std::string m_Rhs;
+    };
+
+    class OrGate : public GateBase
+    {
+    public:
+        OrGate(std::string lhs, std::string rhs)
+            : m_Lhs(std::move(lhs)), m_Rhs(std::move(rhs))
+        {
+        }
+        virtual uint16_t CalcResult() override
+        {
+            return GetSignal(m_Lhs) | GetSignal(m_Rhs);
+        }
+
+    private:
+        const std::string m_Lhs;
+        const std::string m_Rhs;
+    };
+
+    class NotGate : public GateBase
+    {
+    public:
+        NotGate(std::string input)
+            : m_Input(std::move(input))
+        {
+        }
+        virtual uint16_t CalcResult() override
+        {
+            return ~GetSignal(m_Input);
+        }
+
+    private:
+        const std::string m_Input;
+    };
+
+    class LShiftGate : public GateBase
+    {
+    public:
+        LShiftGate(std::string lhs, std::string rhs)
+            : m_Lhs(std::move(lhs)), m_Rhs(std::string(rhs))
+        {
+        }
+        virtual uint16_t CalcResult() override
+        {
+            return GetSignal(m_Lhs) << GetSignal(m_Rhs);
+        }
+
+    private:
+        const std::string m_Lhs;
+        const std::string m_Rhs;
+    };
+
+    class RShiftGate : public GateBase
+    {
+    public:
+        RShiftGate(std::string lhs, std::string rhs)
+            : m_Lhs(std::move(lhs)), m_Rhs(std::string(rhs))
+        {
+        }
+        virtual uint16_t CalcResult() override
+        {
+            return GetSignal(m_Lhs) >> GetSignal(m_Rhs);
+        }
+
+    private:
+        const std::string m_Lhs;
+        const std::string m_Rhs;
+    };
+
+    std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input07.txt");
+    for (size_t i = 0; i < inputData.size(); i++)
+    {
+        const std::string &line = inputData[i];
+        std::istringstream lineStream(line);
+        if (line.find("AND") != std::string::npos)
+        {
+            // x AND y -> d
+            std::string wire, lhs, rhs;
+            lineStream >> lhs;
+            lineStream.ignore(5);
+            lineStream >> rhs;
+            lineStream.ignore(4);
+            lineStream >> wire;
+            wires[wire].reset(new AndGate(lhs, rhs));
+        }
+        else if (line.find("OR") != std::string::npos)
+        {
+            // x OR y -> d
+            std::string wire, lhs, rhs;
+            lineStream >> lhs;
+            lineStream.ignore(4);
+            lineStream >> rhs;
+            lineStream.ignore(4);
+            lineStream >> wire;
+            wires[wire].reset(new OrGate(lhs, rhs));
+        }
+        else if (line.find("LSHIFT") != std::string::npos)
+        {
+            // x LSHIFT y -> d
+            std::string wire, lhs, rhs;
+            lineStream >> lhs;
+            lineStream.ignore(8);
+            lineStream >> rhs;
+            lineStream.ignore(4);
+            lineStream >> wire;
+            wires[wire].reset(new LShiftGate(lhs, rhs));
+        }
+        else if (line.find("RSHIFT") != std::string::npos)
+        {
+            // x RSHIFT y -> d
+            std::string wire, lhs, rhs;
+            lineStream >> lhs;
+            lineStream.ignore(8);
+            lineStream >> rhs;
+            lineStream.ignore(4);
+            lineStream >> wire;
+            wires[wire].reset(new RShiftGate(lhs, rhs));
+        }
+        else if (line.find("NOT") != std::string::npos)
+        {
+            // NOT x -> h
+            std::string val, wire;
+            lineStream.ignore(4);
+            lineStream >> val;
+            lineStream.ignore(4);
+            lineStream >> wire;
+            wires[wire].reset(new NotGate(val));
+        }
+        else
+        {
+            // x -> y
+            std::string val, wire;
+            lineStream >> val;
+            lineStream.ignore(4);
+            lineStream >> wire;
+            wires[wire].reset(new ConstValue(val));
+        }
+    }
+
+    // Part 1: Get wire A
+    uint16_t wireA = wires["a"]->GetResult();
+    std::cout << "AoC: Day 07: Wire a P1: " << wireA << std::endl;
+    // Part 2: Make wire b and constant of wireA value, reset all, get wire A again.
+    char wireAStr[100];
+    snprintf(wireAStr, 100, "%u", wireA);
+    wires["b"].reset(new ConstValue(wireAStr));
+    for (auto &&wire : wires)
+    {
+        wire.second->m_Result.reset();
+    }
+    std::cout << "AoC: Day 07: Wire a P2: " << wires["a"]->GetResult() << std::endl;
+    std::cout << std::endl;
+}
+
 int main()
 {
     day01();
@@ -387,4 +604,5 @@ int main()
     day04();
     day05();
     day06();
+    day07();
 }
