@@ -471,8 +471,11 @@ void day07()
                 else if (lsResult.rfind("dir ", 0) == 0)
                 {
                     std::string dirName = lsResult.substr(4);
-                    Directory *newDir = new Directory(currNode);
-                    currNode->m_Contents[dirName] = std::unique_ptr<ObjectNode>(newDir);
+                    if (currNode->m_Contents.find(dirName) == currNode->m_Contents.end())
+                    {
+                        Directory *newDir = new Directory(currNode);
+                        currNode->m_Contents[dirName] = std::unique_ptr<ObjectNode>(newDir);
+                    }
                 }
                 else if (lsResult.length() > 0)
                 {
