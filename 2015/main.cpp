@@ -596,6 +596,79 @@ void day07()
     std::cout << std::endl;
 }
 
+void day08()
+{
+    std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input08.txt");
+    auto countChars = [](const std::string &str)
+    {
+        int numChars = 0;
+        bool bEscaped = false;
+        for (size_t i = 0; i < str.length(); i++)
+        {
+            if (bEscaped)
+            {
+                if (str[i] == 'x')
+                {
+                    i += 2;
+                    ++numChars;
+                }
+                else
+                {
+                    ++numChars;
+                }
+                bEscaped = false;
+            }
+            else
+            {
+                if (str[i] == '\\')
+                {
+                    bEscaped = true;
+                }
+                else
+                {
+                    ++numChars;
+                }
+            }
+        }
+        return numChars;
+    };
+    auto encodeString = [](const std::string &str)
+    {
+        std::string newStr = "\"";
+        for (auto &&c : str)
+        {
+            if (c == '\\')
+            {
+                newStr += "\\\\";
+            }
+            else if (c == '"')
+            {
+                newStr += "\\\"";
+            }
+            else
+            {
+                newStr += c;
+            }
+        }
+        newStr += "\"";
+        return newStr;
+    };
+    int totalCodeSize = 0;
+    int totalCodeSizeP2 = 0;
+    int totalCharacters = 0;
+    for (size_t i = 0; i < inputData.size(); i++)
+    {
+        const std::string &line = inputData[i];
+        totalCodeSize += line.length();
+        totalCharacters += countChars(line.substr(1, line.length() - 2));
+        totalCodeSizeP2 += encodeString(line).length();
+    }
+
+    std::cout << "AoC: Day 08: Code - Chars   = " << totalCodeSize - totalCharacters << std::endl;
+    std::cout << "AoC: Day 08: NewCode - Code = " << totalCodeSizeP2 - totalCodeSize << std::endl;
+    std::cout << std::endl;
+}
+
 int main()
 {
     day01();
@@ -605,4 +678,5 @@ int main()
     day05();
     day06();
     day07();
+    day08();
 }
