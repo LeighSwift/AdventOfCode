@@ -908,13 +908,157 @@ void day10()
 
 void day11()
 {
-    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input11.txt");
+    class Item
+    {
+    public:
+        uint64_t m_worryLevel;
+    };
+    enum OpType
+    {
+        Adder = 0,
+        Multiplier,
+        Square
+    };
+    class Operation
+    {
+    public:
+        OpType m_Type;
+        int m_Val;
+
+        void Apply(Item &item, bool bIsPart2)
+        {
+            switch (m_Type)
+            {
+            case OpType::Adder:
+                item.m_worryLevel += m_Val;
+                break;
+            case OpType::Multiplier:
+                item.m_worryLevel *= m_Val;
+                break;
+            case OpType::Square:
+                item.m_worryLevel *= item.m_worryLevel;
+                break;
+            }
+            if (!bIsPart2)
+            {
+                item.m_worryLevel /= 3;
+            }
+        }
+    };
+    class Monkey
+    {
+    public:
+        std::vector<Item> m_Items;
+        Operation m_Op;
+        int m_Test;
+        int m_MonkeyIfTrue;
+        int m_MonkeyIfFalse;
+        uint64_t m_ItemsInspected = 0;
+
+        bool operator<(const Monkey &rhs) const
+        {
+            return m_ItemsInspected > rhs.m_ItemsInspected;
+        }
+    };
+    std::vector<Monkey> MonkeysP1;
+    std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input11.txt");
+    for (size_t i = 0; i < inputData.size(); i += 7)
+    {
+        std::string &monkey = inputData[i];
+        std::string &items = inputData[i + 1];
+        std::string &operation = inputData[i + 2];
+        std::string &test = inputData[i + 3];
+        std::string &ifTrue = inputData[i + 4];
+        std::string &ifFalse = inputData[i + 5];
+        MonkeysP1.push_back(Monkey());
+        std::istringstream itemStream(items);
+        itemStream.ignore(18);
+        while (!itemStream.eof())
+        {
+            uint64_t worry = 0;
+            itemStream >> worry;
+            itemStream.ignore(2);
+            MonkeysP1.back().m_Items.push_back(Item{worry});
+        }
+        std::istringstream operationStream(operation);
+        operationStream.ignore(23);
+        char op;
+        std::string val;
+        operationStream >> op;
+        operationStream.ignore(1);
+        operationStream >> val;
+        if (val == "old")
+        {
+            MonkeysP1.back().m_Op.m_Type = OpType::Square;
+        }
+        else if (op == '*')
+        {
+            MonkeysP1.back().m_Op.m_Type = OpType::Multiplier;
+            MonkeysP1.back().m_Op.m_Val = atoi(val.c_str());
+        }
+        else
+        {
+            MonkeysP1.back().m_Op.m_Type = OpType::Adder;
+            MonkeysP1.back().m_Op.m_Val = atoi(val.c_str());
+        }
+        std::istringstream testStream(test);
+        testStream.ignore(21);
+        testStream >> MonkeysP1.back().m_Test;
+        std::istringstream ifTrueStream(ifTrue);
+        ifTrueStream.ignore(29);
+        ifTrueStream >> MonkeysP1.back().m_MonkeyIfTrue;
+        std::istringstream ifFalseStream(ifFalse);
+        ifFalseStream.ignore(30);
+        ifFalseStream >> MonkeysP1.back().m_MonkeyIfFalse;
+    }
+    std::vector<Monkey> MonkeysP2 = MonkeysP1;
+
+    auto playRounds = [&](std::vector<Monkey> &monkeys, int numRounds, bool bIsPart2)
+    {
+        for (int round = 0; round < numRounds; round++)
+        {
+            for (size_t mIdx = 0; mIdx < monkeys.size(); mIdx++)
+            {
+                Monkey &monkey = monkeys[mIdx];
+                for (size_t iIdx = 0; iIdx < monkey.m_Items.size(); iIdx++)
+                {
+                    Item &item = monkey.m_Items[iIdx];
+                    monkey.m_Op.Apply(item, bIsPart2);
+                    if (item.m_worryLevel % monkey.m_Test == 0)
+                    {
+                        monkeys[monkey.m_MonkeyIfTrue].m_Items.push_back(item);
+                    }
+                    else
+                    {
+                        monkeys[monkey.m_MonkeyIfFalse].m_Items.push_back(item);
+                    }
+                    monkey.m_ItemsInspected++;
+                }
+                monkey.m_Items.erase(monkey.m_Items.begin(), monkey.m_Items.end());
+            }
+        }
+    };
+
+    playRounds(MonkeysP1, 20, false);
+    playRounds(MonkeysP2, 10000, true);
+
+    std::sort(MonkeysP1.begin(), MonkeysP1.end());
+    std::sort(MonkeysP2.begin(), MonkeysP2.end());
+    std::cout << "AoC: Day 11: Part 1:  " << MonkeysP1[0].m_ItemsInspected * MonkeysP1[1].m_ItemsInspected << std::endl;
+    // Part 2 incorrect due to massive integer overflow.
+    std::cout << "AoC: Day 11: Part 2:  " << MonkeysP2[0].m_ItemsInspected * MonkeysP2[1].m_ItemsInspected << std::endl;
+    std::cout << std::endl;
+}
+
+void day12()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input12.txt");
     // for (size_t i = 0; i < inputData.size(); i++)
     // {
     //     std::string &line = inputData[i];
     // }
-    // std::cout << "AoC: Day 10: Part 1:  " << todo << std::endl;
-    // std::cout << "AoC: Day 10: Part 2:  " << todo << std::endl;
+    // std::cout << "AoC: Day 12: Part 1:  " << todo << std::endl;
+    // std::cout << "AoC: Day 12: Part 2:  " << todo << std::endl;
     // std::cout << std::endl;
 }
 
@@ -931,4 +1075,5 @@ int main()
     day09();
     day10();
     day11();
+    day12();
 }
