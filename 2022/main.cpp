@@ -1154,13 +1154,153 @@ void day12()
 
 void day13()
 {
-    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input13.txt");
+    class Day13
+    {
+    public:
+        static void FindNextElem(char *&str)
+        {
+            if (*str == '[' || *str == ',')
+            {
+                ++str;
+            }
+        }
+        static void SkipInteger(char *&str)
+        {
+            while (*str >= '0' && *str <= '9')
+            {
+                ++str;
+            }
+        }
+        static int Eval(int lhs, int rhs)
+        {
+            if (lhs < rhs)
+            {
+                return 0;
+            }
+            else if (lhs == rhs)
+            {
+                return 1;
+            }
+            else
+            {
+                // lhs > rhs
+                return 2;
+            }
+        }
+        static int Eval(char *&lhs, int rhs)
+        {
+            char newArr[10];
+            snprintf(newArr, 10, "[%d]", rhs);
+            char *newArrPtr = newArr;
+            return Eval(lhs, newArrPtr);
+        }
+        static int Eval(int lhs, char *&rhs)
+        {
+            char newArr[10];
+            snprintf(newArr, 10, "[%d]", lhs);
+            char *newArrPtr = newArr;
+            return Eval(newArrPtr, rhs);
+        }
+        static int Eval(char *&lhs, char *&rhs, bool *bBothArrayEnd = nullptr)
+        {
+            if (*lhs == '[')
+            {
+                if (*rhs == '[')
+                {
+                    int rtn = 1;
+                    bool bBothArrayEnd = false;
+                    while (rtn == 1 && !bBothArrayEnd)
+                    {
+                        FindNextElem(lhs);
+                        FindNextElem(rhs);
+                        rtn = Eval(lhs, rhs, &bBothArrayEnd);
+                    }
+                    return rtn;
+                }
+                else
+                {
+                    // mix
+                    int rhsInt = atoi(rhs);
+                    SkipInteger(rhs);
+                    return Eval(lhs, rhsInt);
+                }
+            }
+            else if (*rhs == '[')
+            {
+                // mix
+                int lhsInt = atoi(lhs);
+                SkipInteger(lhs);
+                return Eval(lhsInt, rhs);
+            }
+            else
+            {
+                // if both arrays end, we continue so return 1
+                if (*lhs == ']' && *rhs == ']')
+                {
+                    ++lhs;
+                    ++rhs;
+                    if (bBothArrayEnd)
+                        *bBothArrayEnd = true;
+                    return 1;
+                }
+                // if lhs array ends before rhs, correct order
+                else if (*lhs == ']' && *rhs != ']')
+                {
+                    return 0;
+                }
+                // if rhs array ends before lhs, wrong order
+                else if (*lhs != ']' && *rhs == ']')
+                {
+                    return 2;
+                }
+                // otherwise both integers
+                int lhsInt = atoi(lhs);
+                int rhsInt = atoi(rhs);
+                SkipInteger(lhs);
+                SkipInteger(rhs);
+                return Eval(lhsInt, rhsInt);
+            }
+        }
+    };
+
+    std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input13.txt");
+    std::vector<int> correctOrder;
+    std::vector<int> incorrectOrder;
+    int index = 1;
+    for (size_t i = 1; i < inputData.size(); i += 3)
+    {
+        std::string &left = inputData[i - 1];
+        std::string &right = inputData[i];
+
+        char *leftPtr = &left[0];
+        char *rightPtr = &right[0];
+        int result = Day13::Eval(leftPtr, rightPtr);
+        if (result == 0)
+        {
+            correctOrder.push_back(index);
+        }
+        else if (result == 2)
+        {
+            incorrectOrder.push_back(index);
+        }
+        ++index;
+        assert(result != 1);
+    }
+
+    std::cout << "AoC: Day 13: Part 1:  " << 0 << std::endl;
+    std::cout << "AoC: Day 13: Part 2:  " << 0 << std::endl;
+    std::cout << std::endl;
+}
+
+void day14()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input14.txt");
     // for (size_t i = 0; i < inputData.size(); i++)
     // {
     //     std::string &line = inputData[i];
     // }
-    // std::cout << "AoC: Day 13: Part 1:  " << todo << std::endl;
-    // std::cout << "AoC: Day 13: Part 2:  " << todo << std::endl;
+    // std::cout << "AoC: Day 14: Part 1:  " << todo << std::endl;
+    // std::cout << "AoC: Day 14: Part 2:  " << todo << std::endl;
     // std::cout << std::endl;
 }
 
@@ -1179,4 +1319,5 @@ int main()
     day11();
     day12();
     day13();
+    day14();
 }
