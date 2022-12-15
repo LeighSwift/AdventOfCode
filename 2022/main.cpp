@@ -911,7 +911,14 @@ void day11()
     class Item
     {
     public:
-        uint64_t m_worryLevel;
+        Item(int worry)
+        {
+            for (size_t i = 0; i < 10; i++)
+            {
+                m_worryLevel[i] = worry;
+            }
+        }
+        int m_worryLevel[10] = {0};
     };
     enum OpType
     {
@@ -927,21 +934,24 @@ void day11()
 
         void Apply(Item &item, bool bIsPart2)
         {
-            switch (m_Type)
+            for (size_t i = 0; i < 10; i++)
             {
-            case OpType::Adder:
-                item.m_worryLevel += m_Val;
-                break;
-            case OpType::Multiplier:
-                item.m_worryLevel *= m_Val;
-                break;
-            case OpType::Square:
-                item.m_worryLevel *= item.m_worryLevel;
-                break;
-            }
-            if (!bIsPart2)
-            {
-                item.m_worryLevel /= 3;
+                switch (m_Type)
+                {
+                case OpType::Adder:
+                    item.m_worryLevel[i] += m_Val;
+                    break;
+                case OpType::Multiplier:
+                    item.m_worryLevel[i] *= m_Val;
+                    break;
+                case OpType::Square:
+                    item.m_worryLevel[i] *= item.m_worryLevel[i];
+                    break;
+                }
+                if (!bIsPart2)
+                {
+                    item.m_worryLevel[i] /= 3;
+                }
             }
         }
     };
@@ -962,6 +972,7 @@ void day11()
     };
     std::vector<Monkey> MonkeysP1;
     std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input11.txt");
+    int divisor = 1;
     for (size_t i = 0; i < inputData.size(); i += 7)
     {
         std::string &monkey = inputData[i];
@@ -978,7 +989,7 @@ void day11()
             uint64_t worry = 0;
             itemStream >> worry;
             itemStream.ignore(2);
-            MonkeysP1.back().m_Items.push_back(Item{worry});
+            MonkeysP1.back().m_Items.push_back(Item(worry));
         }
         std::istringstream operationStream(operation);
         operationStream.ignore(23);
@@ -1004,6 +1015,7 @@ void day11()
         std::istringstream testStream(test);
         testStream.ignore(21);
         testStream >> MonkeysP1.back().m_Test;
+        divisor *= MonkeysP1.back().m_Test;
         std::istringstream ifTrueStream(ifTrue);
         ifTrueStream.ignore(29);
         ifTrueStream >> MonkeysP1.back().m_MonkeyIfTrue;
@@ -1017,30 +1029,45 @@ void day11()
     {
         for (int round = 0; round < numRounds; round++)
         {
+            std::cout << "Round " << round << std::endl;
+
             for (size_t mIdx = 0; mIdx < monkeys.size(); mIdx++)
             {
                 Monkey &monkey = monkeys[mIdx];
                 for (size_t iIdx = 0; iIdx < monkey.m_Items.size(); iIdx++)
                 {
                     Item &item = monkey.m_Items[iIdx];
-                    monkey.m_Op.Apply(item, bIsPart2);
-                    if (item.m_worryLevel % monkey.m_Test == 0)
+                    for (size_t ugh = 0; ugh < monkeys.size(); ugh++)
                     {
+                        item.m_worryLevel[ugh] = item.m_worryLevel[ugh] % monkeys[ugh].m_Test;
+                        //item.m_worryLevel[ugh] = item.m_worryLevel[ugh] % divisor;
+                    }
+                    monkey.m_Op.Apply(item, bIsPart2);
+                    if (item.m_worryLevel[mIdx] % monkey.m_Test == 0)
+                    {
+                        std::cout << " Monkey " << mIdx << ": true" << std::endl;
                         monkeys[monkey.m_MonkeyIfTrue].m_Items.push_back(item);
                     }
                     else
                     {
+                        std::cout << " Monkey " << mIdx << ": false" << std::endl;
                         monkeys[monkey.m_MonkeyIfFalse].m_Items.push_back(item);
                     }
                     monkey.m_ItemsInspected++;
                 }
                 monkey.m_Items.erase(monkey.m_Items.begin(), monkey.m_Items.end());
             }
+
+            for (size_t mIdx = 0; mIdx < monkeys.size(); mIdx++)
+            {
+                std::cout << " Monkey " << mIdx << ": " << monkeys[mIdx].m_Items.size() << "  " << monkeys[mIdx].m_ItemsInspected << std::endl;
+            }
+            std::cout << std::endl;
         }
     };
 
     playRounds(MonkeysP1, 20, false);
-    playRounds(MonkeysP2, 10000, true);
+    // playRounds(MonkeysP2, 10000, true);
 
     std::sort(MonkeysP1.begin(), MonkeysP1.end());
     std::sort(MonkeysP2.begin(), MonkeysP2.end());
