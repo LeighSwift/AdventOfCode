@@ -6,6 +6,7 @@
 #include <array>
 #include <algorithm>
 #include <map>
+#include <set>
 
 #include "md5.h"
 
@@ -398,7 +399,7 @@ void day07()
             return m_Result.value();
         }
 
-        uint16_t GetSignal(const std::string& wireVal)
+        uint16_t GetSignal(const std::string &wireVal)
         {
             auto wire = wires.find(wireVal);
             if (wire != wires.end())
@@ -669,6 +670,246 @@ void day08()
     std::cout << std::endl;
 }
 
+void day09()
+{
+    std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input09.txt");
+    std::set<std::string> locations;
+    std::map<std::string, int> distances;
+    for (size_t i = 0; i < inputData.size(); i++)
+    {
+        std::string &line = inputData[i];
+        std::istringstream lineStream(line);
+        std::string locA, locB;
+        int dist;
+        lineStream >> locA;
+        lineStream.ignore(4);
+        lineStream >> locB;
+        lineStream.ignore(3);
+        lineStream >> dist;
+        distances[locA + locB] = dist;
+        distances[locB + locA] = dist;
+        locations.insert(locA);
+        locations.insert(locB);
+    }
+    // Brute force part 1
+    class LocNode
+    {
+    public:
+        std::string m_loc;
+        std::unique_ptr<LocNode[]> m_Next;
+        int m_NextNum = 0;
+    };
+    // Using a local hangs lldb on macOS :( so allocations are necessary
+    std::unique_ptr<LocNode> root(new LocNode());
+    std::function<void(LocNode &, const std::set<std::string> &)> populate;
+    populate = [&](LocNode &node, const std::set<std::string> &children)
+    {
+        node.m_NextNum = children.size();
+        node.m_Next.reset(new LocNode[node.m_NextNum]);
+        for (int i = 0; i < node.m_NextNum; i++)
+        {
+            node.m_Next[i].m_loc =   ..push_back(LocNode(child));
+            std::set<std::string> nextChildren = children;
+            nextChildren.erase(child);
+            if (nextChildren.size() > 0)
+            {
+                populate(node.m_Next.back(), nextChildren);
+            }
+        }
+    };
+    populate(*root, locations);
+
+    int shortestRoute = std::numeric_limits<int>::max();
+    int longestRoute = 0;
+    std::function<void(const LocNode &, const LocNode &, int, std::string)> calculate;
+    calculate = [&](const LocNode &node, const LocNode &prev, int accum, std::string Route)
+    {
+        accum += distances[prev.m_loc + node.m_loc];
+        Route += " -> ";
+        Route += node.m_loc;
+        if (node.m_Next.size() == 0)
+        {
+            Route += " = ";
+            char numStr[5];
+            snprintf(numStr, 5, "%d", accum);
+            Route += numStr;
+            if (accum < shortestRoute)
+            {
+                shortestRoute = accum;
+            }
+            if (accum > longestRoute)
+            {
+                longestRoute = accum;
+            }
+            std::cout <<Route << std::endl;
+        }
+        else
+        {
+            for (const LocNode &next : node.m_Next)
+            {
+                calculate(next, node, accum, Route);
+            }
+        }
+    };
+
+    for (const LocNode &start : root->m_Next)
+    {
+        for (const LocNode &next : start.m_Next)
+        {
+            calculate(next, start, 0, start.m_loc);
+        }
+    }
+    std::cout << std::endl;
+
+    std::cout << "AoC: Day 09 Part1: " << shortestRoute << std::endl;
+    std::cout << "AoC: Day 09 Part2: " << longestRoute << std::endl;
+    std::cout << std::endl;
+}
+
+void day10()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input10.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day11()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input11.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day12()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input12.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day13()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input13.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day14()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input14.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day15()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input15.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day16()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input16.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day17()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input17.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day18()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input18.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day19()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input19.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day20()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input20.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day21()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input21.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day22()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input22.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day23()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input23.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day24()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input24.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
+void day25()
+{
+    // std::vector<std::string> inputData = AoC::FileSystem::ReadAllLines("input25.txt");
+    // for (size_t i = 0; i < inputData.size(); i++)
+    // {
+    //     std::string &line = inputData[i];
+    // }
+}
+
 int main()
 {
     day01();
@@ -679,4 +920,21 @@ int main()
     day06();
     day07();
     day08();
+    day09();
+    day10();
+    day11();
+    day12();
+    day13();
+    day14();
+    day15();
+    day16();
+    day17();
+    day18();
+    day19();
+    day20();
+    day21();
+    day22();
+    day23();
+    day24();
+    day25();
 }
