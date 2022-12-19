@@ -1,8 +1,5 @@
 #include "Common.h"
 
-#include <iostream>
-#include <numeric>
-
 void Day01()
 {
     int elfCalories = 0;

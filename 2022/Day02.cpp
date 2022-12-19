@@ -1,10 +1,5 @@
 #include "Common.h"
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <map>
-
 void Day02()
 {
     std::map<char, int> shapeScores;
