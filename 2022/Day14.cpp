@@ -27,6 +27,9 @@ void Day14()
             yMax = std::max(y, yMax);
         }
     }
+    yMax+=2;
+    xMin = 490 - yMax;
+    xMax = 510 + yMax;
     const int width = (xMax - xMin) + 1;
     const int height = (yMax - yMin) + 1;
     char *map = new char[width * height];
@@ -51,23 +54,98 @@ void Day14()
             }
         }
     }
-    getLoc(500, 0) = '+';
+    const std::pair<int, int> sandSpawn = {500, 0};
+    getLoc(sandSpawn.first, sandSpawn.second) = '+';
 
     // Draw map for debugging
-    for (int y = yMin; y <= yMax; y++)
+    std::ofstream drawFile;
+    auto draw = [&]()
     {
-        std::string line = "";
-        for (int x = xMin; x <= xMax; x++)
+        drawFile.open("sandMap.txt");
+        for (int y = yMin; y <= yMax; y++)
         {
-            line += getLoc(x, y);
+            std::string line = "";
+            for (int x = xMin; x <= xMax; x++)
+            {
+                line += getLoc(x, y);
+            }
+            drawFile << line << std::endl;
         }
-        std::cout << line << std::endl;
-    }
-    
-    // Drop sand until one hits
+        drawFile.close();
+    };
+    draw();
 
-    std::cout << "AoC: Day 14: Part 1:  " << 0 << std::endl;
-    std::cout << "AoC: Day 14: Part 2:  " << 0 << std::endl;
+    // Drop sand until one hits
+    auto dropSand = [&](std::pair<int, int> &sand)
+    {
+        const char down = getLoc(sand.first, sand.second + 1);
+        const char left = getLoc(sand.first - 1, sand.second);
+        const char leftDown = getLoc(sand.first - 1, sand.second + 1);
+        const char right = getLoc(sand.first + 1, sand.second);
+        const char rightDown = getLoc(sand.first + 1, sand.second + 1);
+        if (down == '.')
+        {
+            sand = {sand.first, sand.second + 1};
+            return true;
+        }
+        // else if (left == '.' && leftDown == '.')
+        else if (leftDown == '.')
+        {
+            sand = {sand.first - 1, sand.second + 1};
+            return true;
+        }
+        // else if (right == '.' && rightDown == '.')
+        else if (rightDown == '.')
+        {
+            sand = {sand.first + 1, sand.second + 1};
+            return true;
+        }
+        return false;
+    };
+    int part1 = 0;
+    bool bIntoAbyss = false;
+    while (!bIntoAbyss)
+    {
+        std::pair<int, int> sand = sandSpawn;
+        while (dropSand(sand))
+        {
+        }
+        bIntoAbyss = sand.first < xMin || sand.first > xMax || sand.second >= yMax;
+        if (!bIntoAbyss)
+        {
+            getLoc(sand.first, sand.second) = 'o';
+            ++part1;
+        }
+    }
+    draw();
+    
+    for (int x = xMin; x <= xMax; x++)
+    {
+        getLoc(x, yMax) = '#';
+    }
+    draw();
+
+    int part2 = part1;
+    bool bSpawnBlocked = false;
+    while (!bSpawnBlocked)
+    {
+        std::pair<int, int> sand = sandSpawn;
+        while (dropSand(sand))
+        {
+        }
+        bSpawnBlocked = sand == sandSpawn;
+        if (!bSpawnBlocked)
+        {
+            getLoc(sand.first, sand.second) = 'o';
+            ++part2;
+        }
+    }
+    getLoc(sandSpawn.first, sandSpawn.second) = 'o';
+    ++part2;
+    draw();
+
+    std::cout << "AoC: Day 14: Part 1:  " << part1 << std::endl;
+    std::cout << "AoC: Day 14: Part 2:  " << part2 << std::endl;
     std::cout << std::endl;
 }
 
