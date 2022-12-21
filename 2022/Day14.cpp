@@ -27,7 +27,7 @@ void Day14()
             yMax = std::max(y, yMax);
         }
     }
-    yMax+=2;
+    yMax += 2;
     xMin = 490 - yMax;
     xMax = 510 + yMax;
     const int width = (xMax - xMin) + 1;
@@ -58,20 +58,18 @@ void Day14()
     getLoc(sandSpawn.first, sandSpawn.second) = '+';
 
     // Draw map for debugging
-    std::ofstream drawFile;
     auto draw = [&]()
     {
-        drawFile.open("sandMap.txt");
+        std::string output = "\n\n\n\n";
         for (int y = yMin; y <= yMax; y++)
         {
-            std::string line = "";
             for (int x = xMin; x <= xMax; x++)
             {
-                line += getLoc(x, y);
+                output += getLoc(x, y);
             }
-            drawFile << line << std::endl;
+            output += '\n';
         }
-        drawFile.close();
+        std::cout << output;
     };
     draw();
 
@@ -115,10 +113,11 @@ void Day14()
         {
             getLoc(sand.first, sand.second) = 'o';
             ++part1;
+            draw();
         }
     }
     draw();
-    
+
     for (int x = xMin; x <= xMax; x++)
     {
         getLoc(x, yMax) = '#';
@@ -138,6 +137,7 @@ void Day14()
         {
             getLoc(sand.first, sand.second) = 'o';
             ++part2;
+            draw();
         }
     }
     getLoc(sandSpawn.first, sandSpawn.second) = 'o';

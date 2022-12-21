@@ -1,5 +1,6 @@
 #include "main.cpp"
 #include "Common.cpp"
+#include "Renderer.cpp"
 #include "Day01.cpp"
 #include "Day02.cpp"
 #include "Day03.cpp"

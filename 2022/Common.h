@@ -1,10 +1,12 @@
 #pragma once
 
 #include <array>
+#include <chrono>
 #include <iostream>
 #include <map>
 #include <numeric>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace AoC
